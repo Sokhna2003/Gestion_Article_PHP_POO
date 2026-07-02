@@ -2,7 +2,7 @@
     "name": "dell/gestion_article_php_poo",
     "autoload": {
         "psr-4": {
-            "Dell\\GestionArticlePhpPoo\\": "src/"
+            "App\\": "src/"
         }
     },
     "authors": [
@@ -11,5 +11,7 @@
             "email": "dianesokhna2003@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "fakerphp/faker": "^1.24"
+    }
 }
