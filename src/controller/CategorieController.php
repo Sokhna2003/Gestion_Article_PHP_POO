@@ -11,31 +11,28 @@ class CategorieController {
     }
 
     
+    //  Afficher la liste des catégories
     public function liste(): void {
         $categories = $this->categorieModel->getAll();
-        
-        ob_start();
-        require_once "../view/categories/index.php";
-        $content = ob_get_clean();
-        
-        require_once "../view/layout/base.layout.php";
+        loadView("categories/liste", ["categories" => $categories]);
     }
 
-    
+    //  Ajouter une catégorie
     public function ajout(): void {
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajout'])) {
-            $nomCategorie = trim($_POST['nom_categorie'] ?? '');
+            //  Préparation des données pour le validateur
+            $data = [
+                'nom_categorie' => $_POST['nom_categorie'] ?? ''
+            ];
 
-            if (empty($nomCategorie)) {
-                $errors['nom_categorie'] = "Le nom de la catégorie est obligatoire.";
-            }
+            $errors = validDataCategorie($data);
 
-            if (count($errors) === 0) {
+            // Si aucune erreur, on procède à l'enregistrement
+            if (validate($errors)) {
                 try {
-                    $this->categorieModel->save(htmlspecialchars($nomCategorie));
-                    
+                    $this->categorieModel->save(htmlspecialchars($data['nom_categorie']));
                     redirectTo("categorie", "liste");
                 } catch (\PDOException $e) {
                     if ($e->getCode() == 23000) {
@@ -47,10 +44,6 @@ class CategorieController {
             }
         }
 
-        ob_start();
-        require_once ROOT . "src/view/categories/ajout.php";
-        $content = ob_get_clean();
-
-        require_once ROOT . "src/view/layout/base.layout.php";
+        loadView("categories/ajout", ["errors" => $errors]);
     }
 }

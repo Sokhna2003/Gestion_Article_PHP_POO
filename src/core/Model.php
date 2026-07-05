@@ -48,4 +48,10 @@ class Model {
         $statement->execute($data);
         return $statement->rowCount();
     }
+
+    function countTable(string $table){
+        $sql="SELECT COUNT(*) as total FROM $table";
+        return executeSelect($sql,[],true)["total"];
+    }
+    
 }

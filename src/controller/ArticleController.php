@@ -13,44 +13,49 @@ class ArticleController {
         $this->categorieModel = new CategorieModel();
     }
 
+    // Liste des articles
     public function liste(): void {
         $articles = $this->articleModel->findAllAvecCategorie();
-        loadView("articles/liste",["articles"=>$articles]);
         
+        loadView("articles/liste", ["articles" => $articles]);
     }
 
+    // Ajout d'un article
     public function ajout(): void {
         $errors = [];
-        $categories = $this->categorieModel->findAllAvecCategorie();
+        
+        // Utilisation de getAll() hérité pour lister simplement les catégories (table categories)
+        $categories = $this->categorieModel->getAll();
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ajout'])) {
             
-            if (empty(trim($_POST['libelle'] ?? ''))) {
-                $errors['libelle'] = "Le libellé de l'article est obligatoire.";
-            }
-            if (empty($_POST['id_categorie'] ?? '')) {
-                $errors['id_categorie'] = "Veuillez sélectionner une catégorie.";
-            }
-            if (empty(trim($_POST['contenu'] ?? ''))) {
-                $errors['contenu'] = "Le contenu de l'article ne peut pas être vide.";
-            }
+            // Préparation des données pour la fonction de validation
+            $data = [
+                'libelle'      => $_POST['libelle'] ?? '',
+                'id_categorie' => $_POST['id_categorie'] ?? '',
+                'contenu'      => $_POST['contenu'] ?? ''
+            ];
 
-            // Si aucune erreur n'est détectée
-            if (count($errors) === 0) {
-                $data = [
-                    'libelle'      => htmlspecialchars($_POST['libelle']),
-                    'id_categorie' => (int)$_POST['id_categorie'],
-                    'contenu'      => htmlspecialchars($_POST['contenu'])
+            // UTILISATION DE TA FONCTION DE VALIDATION GLOBALE : validator.php
+            $errors = validDataArticle($data);
+
+            // Si le tableau renvoyé par validDataArticle est vide, on valide
+            if (validate($errors)) {
+                $secureData = [
+                    'libelle'      => htmlspecialchars($data['libelle']),
+                    'id_categorie' => (int)$data['id_categorie'],
+                    'contenu'      => htmlspecialchars($data['contenu'])
                 ];
 
-                $this->articleModel->save($data);
-                
+                $this->articleModel->save($secureData);
                 redirectTo("article", "liste");
             }
         }
-        loadView("articles/ajout",["errors"=>$errors]);
-       
-
         
+        // Envoi à la fois des erreurs ET de la liste des catégories à la vue ajout.php
+        loadView("articles/ajout", [
+            "errors"     => $errors,
+            "categories" => $categories
+        ]);
     }
 }

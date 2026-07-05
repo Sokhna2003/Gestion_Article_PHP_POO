@@ -10,9 +10,9 @@ function dd($test)
 function loadView(string $view,array $datas=[],string $layout="base") {
     ob_start();
     extract($datas);
-    require_once(ROOT."view/".$view.".php");
+    require_once(ROOT."src/view/".$view.".php");
     $content=ob_get_clean();
-    require_once ROOT."/view/layout/$layout.layout.php";
+    require_once ROOT."src/view/layout/$layout.layout.php";
 
 
 }
@@ -28,8 +28,5 @@ function redirectTo(string $controller, string $action):void{
 }
 
 
-function countTable(string $table){
-    $sql="SELECT COUNT(*) as total FROM $table";
-   return executeSelect($sql,[],true)["total"];
-}
+
 
